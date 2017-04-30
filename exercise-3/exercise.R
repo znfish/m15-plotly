@@ -3,33 +3,33 @@
 # and conform it to only the observations that will be relevent to us. 
 
 # Set your working directory and load in the 'dplyr' package into your current R session.
-
+library(dplyr)
 
 # Read in `IHME_WASHINGTON_CANCER_MORTALITY_RATES_1980_2014.csv` data using relative path
-
+data <- read.csv("data/IHME_WASHINGTON_MORTALITY_RATES_1980_2014.csv", stringsAsFactors = FALSE)
 
 # Remove all non-county observations from the data set 
-
+data <- data %>% filter(location_name != "Washington")
 
 # Remove all observations that contain mortality rates for "both" sex
-
+data <- data %>% filter(sex != "Both")
 
 # Now let's take a closer look at the data for just "King County"
 # Store all the relevant information in a variable called 'King.County'
-
+King.County <-  data %>% filter(location_name == "King County")
 
 # For the remainder of the exercise, we will be using "Neoplasms" as
 # our cancer cause. Store inside a variable 'neoplasms.kc' all the information
 # with neoplasms as the cause.
-
+neoplasms <- King.County %>% filter(cause_name == "Neoplasms")
 
 # To make things a little easier for graphing later, let's just take data for the 
 # past 10 years. (Starting at 2014)
-
+neoplasms <- neoplasms %>% filter(year_id > 2004)
 
 # Using our data from 2005-2014, create a data frame that has only the 'sex', 'year_id'
 # and 'mortality_rate'
-
+neoplasms <- neoplasms %>% select(sex, year_id, mortality_rate)
 
 # Take a look at our data. You see how the data is "long"? For the plot that we are 
 # interested in making, the data must be "wide". In a lot of instances where you are
@@ -37,7 +37,8 @@
 # such apis. To do so now, we will be using a package called `reshape2`.
 
 # Install the `reshape2` package and load it into your current session
-
+install.packages("reshape2")
+library(reshape2)
 
 # For the sake of time, we've provided code on how to properly "cast" your data to
 # wide format (assuming that you've correctly followed the instructions above). 
@@ -52,12 +53,13 @@ prepped.data <- dcast(neoplasms, year_id ~sex)
 
 # First, let's make sure we have the `plotly` package installed and loaded into 
 # our current R session
-
+install.packages("plotly")
+library(plotly)
 
 # Using the plot_ly function from the `plotly` package, pass in your prepped data
 # as the data, the 'year_id' column as the x and the 'Female' column as the y.
 # The plot type should be 'bar' and and make sure you include a name for the trace.
-
+p <- plot_ly(prepped.data, x = ~year_id , y = ~Female, type = 'bar', name = 'Female') 
 
 # Take a look at what you've made thus far. It doesn't look like what we want it
 # to but we're getting close to it! 
@@ -68,22 +70,28 @@ prepped.data <- dcast(neoplasms, year_id ~sex)
 # mortality rates so that it can be included in your plot from above.
 # Within your add_trace function, use the "Male" column as your y. You dont need to add
 # a trace for x, but make sure you add a name for the trace.
-
+p <- p %>% add_trace(y = ~Male, name ='Male')
 
 # Take a look at what you've made thus far. You should see that the cancer
 # mortaility rates for female and males each year are plotted next to each other. 
 # Now that we have the foundation down, it's time to make our plot look presentable. 
 # Let's start by adding a layout to the plot. Add a title for the overall plot, as well as 
 # for both axes. Add a margin of 100 as well as a barmode of "group".
-
-
+p <- p %>% layout(title = "Neoplasms Mortality Rate in King County (2005-2014)",
+                  xaxis = list(title = "Years"),
+                  yaxis = list(title = "Mortality Rates"),
+                  margin = list(b = 100),
+                  barmode = "group")
 
 
 ########################### Bonus ###################################
 # Now, let's add some color to our plot.
 # Make a new plot and add pink for the female trace, and blue for the male trace.
-
-
-
-
+p2 <- plot_ly(prepped.data, x = ~year_id , y = ~Female, type = 'bar', name = 'Female', marker = list(color = "rgb(255,192,203)")) %>% 
+  add_trace(y=~Male, name = 'Male', marker = list(color = "rgb(135,206,250)")) %>%
+  layout(title = "Neoplasms Mortality Rate in King County (2005-2014)",
+         xaxis = list(title = "Years"),
+         yaxis = list(title = "Mortality Rates"),
+         margin = list(b = 100),
+         barmode = "group")
 
