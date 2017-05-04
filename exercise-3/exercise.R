@@ -3,24 +3,26 @@
 # and conform it to only the observations that will be relevent to us. 
 
 # Set your working directory and load in the 'dplyr' package into your current R session.
-
+library(dplyr)
 
 # Read in `IHME_WASHINGTON_CANCER_MORTALITY_RATES_1980_2014.csv` data using relative path
-
+data <- read.csv("data/IHME_WASHINGTON_MORTALITY_RATES_1980_2014.csv", stringsAsFactors = FALSE)
 
 # Remove all non-county observations from the data set 
-
+data <- filter(data, location_name != "Washington")
 
 # Remove all observations that contain mortality rates for "both" sex
-
+data <- filter(data, sex != "Both")
 
 # Now let's take a closer look at the data for just "King County"
 # Store all the relevant information in a variable called 'King.County'
-
+King.County <- filter(data, location_name == "King County")
 
 # For the remainder of the exercise, we will be using "Neoplasms" as
 # our cancer cause. Store inside a variable 'neoplasms.kc' all the information
 # with neoplasms as the cause.
+neoplasms.kc <- filter(data, cause_name == "Neoplasms")
+
 
 
 # To make things a little easier for graphing later, let's just take data for the 
